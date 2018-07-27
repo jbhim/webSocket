@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>围观直播</title>
+</head>
+<body>
+<img id="recive" style="margin: 0 auto;width: 450px;height: 350px"/>
+<script>
+    var reciveSocket = new WebSocket("ws://192.168.1.112:8080/onlineServer");
+    var image = document.getElementById("recive");
+
+    reciveSocket.onmessage = function (msg) {
+        image.src = msg.data;
+    }
+</script>
+</body>
+</html>

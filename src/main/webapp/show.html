@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>主播开播界面</title>
+</head>
+<body>
+<!--如何使用浏览器调用摄像头并展示-->
+<video id="video" src="" autoplay style="width: 640px;height: 480px"></video>
+<canvas id="output" style="display: none"></canvas>
+<script>
+    var back = document.getElementById("output");
+    var backContext = document.getElementById("output").getContext("2d");
+    var video = document.getElementById("video");
+    var socket;
+    var interval;
+    setTimeout("init()", 100);
+
+
+    function init() {
+        if ('WebSocket' in window) {
+            socket = new WebSocket("ws://192.168.1.112:8080/onlineServer");
+        } else {
+            alert('该浏览器不支持');
+        }
+
+        socket.onopen = function () {
+            console.log("数据发送给服务端");
+            clearInterval(interval);
+            interval = setInterval(function () {
+                draw();
+            }, 50)
+        }
+        socket.onclose = function () {
+            alert("close");
+        }
+        socket.onmessage = function (message) {
+
+        }
+        socket.onerror = function () {
+            alert("error");
+        }
+
+    }
+
+
+    function draw() {
+        backContext.drawImage(video, 0, 0, back.width, back.height);
+        socket.send(back.toDataURL("image/jpeg", 0.5));
+
+    }
+
+
+    var success = function (stream) {
+        if (window.URL) {
+            video.src = window.URL.createObjectURL(stream);
+        } else {
+            video.src = stream;
+        }
+    }
+
+    //js bom模型
+    navigator.getUserMedia = navigator.getUserMedia ||
+        navigator.webkitGetUserMedia ||
+        navigator.mozGetUserMedia ||
+        navigator.msGetUserMedia ||
+        navigator.mediaDevices.getUserMedia;
+
+    navigator.getUserMedia({video: true, audio: true}, success, console.log)
+</script>
+</body>
+</html>
